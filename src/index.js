@@ -14,6 +14,8 @@ const dummyTransactions = [
 ];
 const transactions = dummyTransactions;
 
+//remove transaction
+
 //add transaction to DOM
 function addTransactionDOM(transaction) {
   const sign = transaction.amount < 0 ? "-" : "+";
@@ -25,10 +27,52 @@ function addTransactionDOM(transaction) {
   list.appendChild(item);
 }
 
+function addTransaction(e) {
+  e.preventDefault();
+  if (text.value.trim() === "" || amount.value.trim() === "") {
+    alert("please add a title and amount");
+  } else {
+    const transaction = {
+      id: generateId(),
+      text: text.value,
+      amount: +amount.value
+    };
+    transactions.push(transaction);
+    addTransactionDOM(transaction);
+    updateValues();
+    text.value = "";
+    amount.value = "";
+  }
+}
+
+function generateId() {
+  return Math.floor(Math.random() * 100000000);
+}
+
+//update balance and inc-exp
+function updateValues() {
+  const amounts = transactions.map(transaction => transaction.amount);
+  const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+  const income = amounts
+    .filter(item => item > 0)
+    .reduce((acc, item) => (acc += item), 0)
+    .toFixed(2);
+  const expense = (
+    amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) *
+    -1
+  ).toFixed(2);
+
+  balance.innerText = `$${total}`;
+  money_plus.innerText = `$${income}`;
+  money_minus.innerText = `$${expense}`;
+}
+
+form.addEventListener("submit", addTransaction);
 //init app
 function init() {
   list.innerHTML = "";
   transactions.forEach(addTransactionDOM);
+  updateValues();
 }
 
 init();
